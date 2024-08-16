@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdint.h>
+#include <vector>
+
+using namespace std;
+
+// Recursive Fibonacci function
+long long compute_fibonacci_recursive(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return compute_fibonacci_recursive(n - 1) + compute_fibonacci_recursive(n - 2);
+}
+
+// Generate Fibonacci sequence using recursion
+vector<long long> generate_fibonacci_sequence_recursive(int count) {
+    vector<long long> sequence;
+    for (int i = 0; i < count; i++) {
+        sequence.push_back(compute_fibonacci_recursive(i));
+    }
+    return sequence;
+}
+
+// Iterative Fibonacci function
+long long compute_fibonacci_iterative(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+
+    long long a = 0;
+    long long b = 1;
+    long long result;
+
+    for (int i = 2; i <= n; i++) {
+        result = a + b;
+        a = b;
+        b = result;
+    }
+
+    return result;
+}
+
+// Generate Fibonacci sequence using iteration
+vector<long long> generate_fibonacci_sequence_iterative(int count) {
+    vector<long long> sequence;
+    for (int i = 0; i < count; i++) {
+        sequence.push_back(compute_fibonacci_iterative(i));
+    }
+    return sequence;
+}
+
+// Fibonacci function with memoization using recursion
+long long compute_fibonacci_recursive_memoized(int n, vector<long long>& memo) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    if (memo[n] != -1) return memo[n];
+
+    memo[n] = compute_fibonacci_recursive_memoized(n - 1, memo) + compute_fibonacci_recursive_memoized(n - 2, memo);
+    return memo[n];
+}
+
+// Fibonacci function with memoization using iteration
+long long compute_fibonacci_iterative_memoized(int n, vector<long long>& memo) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+
+    memo[0] = 0;
+    memo[1] = 1;
+
+    for (int i = 2; i <= n; i++) {
+        memo[i] = memo[i - 1] + memo[i - 2];
+    }
+
+    return memo[n];
+}
+
+// Measure the execution time of a function
+void measure_execution_time(void (*func)(int), int n, const char* name) {
+    struct timespec start, end;
+
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    func(n);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+
+    long seconds = end.tv_sec - start.tv_sec;
+    long nanoseconds = end.tv_nsec - start.tv_nsec;
+    if (nanoseconds < 0) {
+        seconds--;
+        nanoseconds += 1000000000L;
+    }
+
+    printf("%s took %ld.%09ld seconds\n", name, seconds, nanoseconds);
+}
+
+int main() {
+    int terms = 30;
+    vector<long long> memo(terms + 1, -1);
+
+    measure_execution_time([](int n) { compute_fibonacci_recursive(n); }, terms, "compute_fibonacci_recursive");
+    measure_execution_time([](int n) { vector<long long> memo(n + 1, -1); compute_fibonacci_recursive_memoized(n, memo); }, terms, "compute_fibonacci_recursive_memoized");
+    measure_execution_time([](int n) { compute_fibonacci_iterative(n); }, terms, "compute_fibonacci_iterative");
+    measure_execution_time([](int n) { vector<long long> memo(n + 1, -1); compute_fibonacci_iterative_memoized(n, memo); }, terms, "compute_fibonacci_iterative_memoized");
+
+    return 0;
+}
