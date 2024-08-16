@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to multiply two matrices and store the result in a third matrix
+void matrix_multiply(int **matrix1, int **matrix2, int **result_matrix, int size) {
+    int row = 0;
+    while (row < size) {
+        int col = 0;
+        while (col < size) {
+            result_matrix[row][col] = 0;
+            int k = 0;
+            while (k < size) {
+                result_matrix[row][col] += matrix1[row][k] * matrix2[k][col];
+                k++;
+            }
+            col++;
+        }
+        row++;
+    }
+}
+
+int main() {
+    int size = 1024; // Change this to test with different matrix dimensions: 64, 128, 256, 512, 1024
+
+    // Allocate memory for the matrices
+    int **matrix1 = (int **)malloc(size * sizeof(int *));
+    int **matrix2 = (int **)malloc(size * sizeof(int *));
+    int **result_matrix = (int **)malloc(size * sizeof(int *));
+    
+    int i = 0;
+    while (i < size) {
+        matrix1[i] = (int *)malloc(size * sizeof(int));
+        matrix2[i] = (int *)malloc(size * sizeof(int));
+        result_matrix[i] = (int *)malloc(size * sizeof(int));
+        i++;
+    }
+
+    // Fill matrices with random values
+    i = 0;
+    while (i < size) {
+        int j = 0;
+        while (j < size) {
+            matrix1[i][j] = rand() % 100; // Random values between 0 and 99
+            matrix2[i][j] = rand() % 100;
+            j++;
+        }
+        i++;
+    }
+
+    clock_t start_time, end_time;
+    double elapsed_time;
+
+    start_time = clock();
+    
+    // Perform matrix multiplication
+    matrix_multiply(matrix1, matrix2, result_matrix, size);
+    
+    end_time = clock();
+    elapsed_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC;
+
+    printf("Time taken to multiply %dx%d matrices: %f seconds\n", size, size, elapsed_time);
+
+    // Deallocate memory
+    i = 0;
+    while (i < size) {
+        free(matrix1[i]);
+        free(matrix2[i]);
+        free(result_matrix[i]);
+        i++;
+    }
+    free(matrix1);
+    free(matrix2);
+    free(result_matrix);
+
+    return 0;
+}
